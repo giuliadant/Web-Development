@@ -1,12 +1,13 @@
 body {
-    background-image:linear-gradient(60deg,tan, #b5c9c2)
+    background-image:linear-gradient(60deg, #e7901c, #ef5d1e);
 }
 h1{
     text-align: center;
 }
 
 .game-button  {
-    background-color: #b5c9c2;
+    background-color: #f68a1d;
+    border-color: #f68a1d;
     cursor: pointer;
     align-self: flex-end;
     margin-top: 20px;
@@ -14,16 +15,19 @@ h1{
     font-size: 14px;
     font-style: italic;
     font-family: 'Arial', sans-serif;
+    border-radius: 5px;
 }
 
 .game-button:hover {
-    background-color: #98aba5;
+    background-color: #f3a10a;
+    border-color: #e7901c;
 }
 
 
  #Popup {
      border: 2px solid #382f2f;
-     background-color: #b5c9c2;
+     background-color: #382f2f;
+     color: white;
      border-radius: 10px;
      width: 500px;
      height: 300px;
