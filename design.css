@@ -1,37 +1,43 @@
 body {
-    background-image:linear-gradient(60deg, #e7901c, #ef5d1e);
+    background-image:linear-gradient(90deg, #e7901c, #ef5d1e);
+    overflow: hidden;
+    margin:0;
+    font-family:'Orbitron', sans-serif;
 }
 h1{
     text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 50px;
+    margin:20px 0;
+    color: #382f2f;
+
 }
 
-.game-button  {
+.popup-button  {
     background-color: #f68a1d;
     border-color: #f68a1d;
     cursor: pointer;
     align-self: flex-end;
-    margin-top: 20px;
+    margin-top:40px;
     padding: 5px;
     font-size: 14px;
     font-style: italic;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     border-radius: 5px;
 }
 
-.game-button:hover {
+.popup-button:hover {
     background-color: #f3a10a;
     border-color: #e7901c;
 }
-
 
  #Popup {
      border: 2px solid #382f2f;
      background-color: #382f2f;
      color: white;
      border-radius: 10px;
-     width: 500px;
+     max-width: 500px;
      height: 300px;
-     margin: auto;
      padding: 20px;
      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
      position: fixed;
@@ -42,4 +48,162 @@ h1{
      flex-direction: column;
      justify-content: center;
      align-items: center;
+     text-align: center;
  }
+
+ #Main {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     min-height: 80vh;
+ }
+
+
+ #Clicker {
+     background-color: #382f2f;
+     border-color: #382f2f;
+     color: white;
+     padding: 12px 25px;
+     font-size: 16px;
+     margin-top: 70px;
+     cursor: pointer;
+ }
+
+ #Counter {
+     font-size: 24px;
+     font-weight: bold;
+     padding: 10px 20px;
+     border: 3px solid #382f2f;
+     border-radius: 8px;
+     background: rgba(0, 0, 0, 0.2);
+     box-shadow: 0 0 10px #382f2f, 0 0 20px #ff6600;
+ }
+
+#upgradesContainer {
+    position: fixed;
+    top: 10%;
+    right: 2%;
+    width: 15vw;
+    min-width: 150px;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.upgradesBox {
+
+    border: 2px solid #382f2f;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    background-color: #382f2f;
+    color: white;
+    margin-bottom:15px;
+}
+
+.upgradesButton{
+    background-color: #f68a1d;
+    border-color: #f68a1d;
+    cursor: pointer;
+    margin-top: 20px;
+    padding: 5px;
+    font-size: 14px;
+    font-style: italic;
+    border-radius: 5px;
+    display:block;
+    width: 100%;
+}
+
+#manualUpgrades h2{
+    white-space: nowrap;
+    color: #f55858;
+    text-shadow:0 0 10px #ff6600, 0 0 20px #ff3300, 0 0 30px #ff1111
+}
+
+#idleUpgrades h2{
+    color: #ffffff;
+    text-shadow:0 0 10px #9ebeb5, 0 0 20px #9ebeb5, 0 0 30px #76a29a
+
+}
+#Prestige h2 {
+    margin-bottom: 10px;
+    color: #fcbe4e;
+    text-shadow:0 0 10px #f3a10a, 0 0 20px #ff7300, 0 0 30px #ff1
+}
+
+#Prestige {
+    margin-top: 5px;
+}
+
+#frenzyContainer {
+    position: absolute;
+    left: 2%;
+    top: 45%;
+    border: 2px solid #382f2f;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    background-color: #382f2f;
+    width:fit-content;
+}
+
+#frenzyContainer h2 {
+    color:#ff6600;
+    text-shadow:0 0 10px #ff6600, 0 0 20px #ff3300, 0 0 30px #ff1100;
+}
+
+#toggleAchievements{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #382f2f;
+    color: white;
+}
+
+#achievementsContainer {
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    padding: 10px;
+    font-size: 14px;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 5px;
+    width:250px;
+}
+
+#achievementsContainer ul{
+    list-style-type: none;
+    padding: 0;
+}
+
+#achievementsContainer li{
+    margin: 8px 0;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.achievement {
+    margin: 8px 0;
+    padding: 5px;
+    background: rgba(255, 165, 0, 0.2);
+}
+
+.achievement.completed {
+    color: black;
+    background: rgba(76, 175, 80, 0.2);
+    font-weight: bold;
+    border-left: 5px solid #4CAF50;
+}
