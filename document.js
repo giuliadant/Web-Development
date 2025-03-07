@@ -3,16 +3,16 @@ document.getElementById("closePopup").addEventListener("click", function() //pop
 
 
 //declaring variables
-const trainButton = document.getElementById("Clicker");
-const skillDisplay = document.getElementById("Counter");
+const Button = document.getElementById("Clicker");
+const Counter = document.getElementById("Counter");
 
 let points =  0
-
 //skill points display
-skillDisplay.innertext = "Skill Points:  " + points;
+Counter.innerText = "Skill Points:  " + points;
 
-trainButton.addEventListener("click", function()
-{points++;skillDisplay.innerText = "Skill Points: " + points;
+Button.addEventListener("click", function() {
+    points++;
+    Counter.innerText = "Skill Points: " + points;
 })
 
 
