@@ -1,21 +1,24 @@
 body {
-    background-image:linear-gradient(90deg, #e7901c, #ef5d1e);
+    background-image: url("./images/b.jpg");
+    background-size: cover;
+    height: 100vh;
     overflow: hidden;
-    margin:0;
     font-family:'Orbitron', sans-serif;
+    color: #E0D5B7;
 }
 h1{
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-size: 50px;
-    margin:20px 0;
-    color: #382f2f;
+    margin:20px;
+    color: #F5E6C3 ;
+    text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
 
 }
 
 .popup-button  {
-    background-color: #f68a1d;
-    border-color: #f68a1d;
+    background-color: #C49A6C;
+    border-color: #C49A6C;
     cursor: pointer;
     align-self: flex-end;
     margin-top:40px;
@@ -27,14 +30,15 @@ h1{
 }
 
 .popup-button:hover {
-    background-color: #f3a10a;
-    border-color: #e7901c;
+    background-color: #A42E2E;
+    border-color: #A42E2E;
 }
 
  #Popup {
      border: 2px solid #382f2f;
      background-color: #382f2f;
-     color: white;
+     color: #F5E6C3 ;
+     text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
      border-radius: 10px;
      max-width: 500px;
      height: 300px;
@@ -61,23 +65,26 @@ h1{
 
 
  #Clicker {
-     background-color: #382f2f;
-     border-color: #382f2f;
+     background-color: #C49A6C;
+     border-color: #3A2A1E;
      color: white;
      padding: 12px 25px;
+     border-radius: 5px;
      font-size: 16px;
      margin-top: 70px;
      cursor: pointer;
+
  }
 
  #Counter {
      font-size: 24px;
      font-weight: bold;
      padding: 10px 20px;
-     border: 3px solid #382f2f;
-     border-radius: 8px;
-     background: rgba(0, 0, 0, 0.2);
-     box-shadow: 0 0 10px #382f2f, 0 0 20px #ff6600;
+     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 12px #ffcc66, 0 0 24px #ff9900;
+     box-shadow: 0 0 10px, 0 0 20px #8B5E3C;
+     color: #C49A6C;
+     border: 3px solid #8B5E3C;
+     background: rgba(0, 0, 0, 0.8);
  }
 
 #upgradesContainer {
@@ -90,6 +97,7 @@ h1{
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding:10px;
 }
 
 .upgradesBox {
@@ -107,8 +115,8 @@ h1{
 }
 
 .upgradesButton{
-    background-color: #f68a1d;
-    border-color: #f68a1d;
+    background-color: #C49A6C;
+    border-color: #C49A6C;
     cursor: pointer;
     margin-top: 20px;
     padding: 5px;
@@ -119,28 +127,33 @@ h1{
     width: 100%;
 }
 
+.upgradesButton:hover {
+    background-color: #A42E2E;
+    border-color: #A42E2E;
+}
 #manualUpgrades h2{
     white-space: nowrap;
-    color: #f55858;
-    text-shadow:0 0 10px #ff6600, 0 0 20px #ff3300, 0 0 30px #ff1111
+    color: #F5E6C3 ;
+    text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
 }
 
 #idleUpgrades h2{
-    color: #ffffff;
-    text-shadow:0 0 10px #9ebeb5, 0 0 20px #9ebeb5, 0 0 30px #76a29a
+    color: #F5E6C3 ;
+    text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
+
 
 }
 #Prestige h2 {
     margin-bottom: 10px;
-    color: #fcbe4e;
-    text-shadow:0 0 10px #f3a10a, 0 0 20px #ff7300, 0 0 30px #ff1
+    color: #F5E6C3 ;
+    text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
 }
 
 #Prestige {
     margin-top: 5px;
 }
 
-#frenzyContainer {
+#bloodlustContainer {
     position: absolute;
     left: 2%;
     top: 45%;
@@ -155,9 +168,9 @@ h1{
     width:fit-content;
 }
 
-#frenzyContainer h2 {
-    color:#ff6600;
-    text-shadow:0 0 10px #ff6600, 0 0 20px #ff3300, 0 0 30px #ff1100;
+#bloodlustContainer h2 {
+    color: #F5E6C3 ;
+    text-shadow:2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
 }
 
 #toggleAchievements{
@@ -177,11 +190,27 @@ h1{
     position: absolute;
     top: 50px;
     left: 10px;
-    padding: 10px;
     font-size: 14px;
     font-family: 'Orbitron', sans-serif;
-    border-radius: 5px;
     width:250px;
+    background: rgba(20, 15, 10, 0.95);
+    color: #E0C089;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #5A3D31;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    visibility: hidden;
+}
+
+#achievementsContainer.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    visibility: hidden;
 }
 
 #achievementsContainer ul{
@@ -190,20 +219,25 @@ h1{
 }
 
 #achievementsContainer li{
-    margin: 8px 0;
-    padding: 5px;
     border-radius: 5px;
+    background: rgba(50, 30, 20, 0.9);
+    color: rgba(227, 199, 45, 0.96);
+    border-left: 5px solid #A0784A;
+    padding: 6px 12px;
+    margin-bottom: 5px;
 }
 
 .achievement {
-    margin: 8px 0;
+    margin: 8px;
     padding: 5px;
     background: rgba(255, 165, 0, 0.2);
 }
 
 .achievement.completed {
-    color: black;
-    background: rgba(76, 175, 80, 0.2);
+    color: #E0C089;
+    background: rgba(160, 100, 40, 0.2);
     font-weight: bold;
-    border-left: 5px solid #4CAF50;
+    border-left: 5px solid #C49A6C;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
