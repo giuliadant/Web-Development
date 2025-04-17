@@ -8,12 +8,13 @@ const Counter = document.getElementById("Counter");
 
 let points =  0
 //skill points display
-Counter.innerText = "Skill Points:  " + points;
 
 Button.addEventListener("click", function() {
     points++;
-    Counter.innerText = "Skill Points: " + points;
+    Counter.innerText = "Battle Points : " + points;
 })
+
+
 
 
 
