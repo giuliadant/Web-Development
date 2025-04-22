@@ -259,3 +259,20 @@ h1{
     text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
+
+#gameMessage {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: rgba(40, 30, 20, 0.9);
+    color: #F5E6C3;
+    border: 2px solid #C49A6C;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+

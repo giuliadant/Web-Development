@@ -14,35 +14,21 @@ Button.addEventListener("click", function() {
     Counter.innerText = "Battle Points : " + points;
 })
 
-function knightSay(message) {
-    const speech = document.getElementById("knightSpeech");
-    speech.textContent = message;
-    speech.style.opacity = 1;
+function showMessage(text) {
+    const msg = document.getElementById("gameMessage");
+    msg.textContent = text;
+    msg.style.opacity = 1;
 
-    setTimeout(() => {
-        speech.style.opacity = 0;
-    }, 2500);
+    clearTimeout(msg._timeout); // prevent stacking messages
+    msg._timeout = setTimeout(() => {
+        msg.style.opacity = 0;
+    }, 3000);
 }
 
-//need to modify upgrades to be clicked only when enough points are available
-document.getElementById("skill").addEventListener("click", () => {
-    // Your upgrade logic
-    knightSay("🌀 Skill unlocked!");
-});
-
 document.getElementById("vitality").addEventListener("click", () => {
-    knightSay("🛡️ Vitality increased.");
+    showMessage("🛡️ Vitality upgrade unlocked!");
 });
 
-document.getElementById("ritual").addEventListener("click", () => {
-    knightSay("🩸 Blood Ritual complete.");
+document.getElementById("skill").addEventListener("click", () => {
+    showMessage("🌀 Skill upgraded!");
 });
-
-
-
-
-
-
-
-
-
