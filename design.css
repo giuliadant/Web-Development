@@ -113,23 +113,23 @@ h1{
 
     border: 2px solid #382f2f;
     border-radius: 10px;
-    padding: 15px;
-    width: 100%;
+    padding: 10px;
+    width: 90%;
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
     background-color: #382f2f;
     color: white;
-    margin-bottom:15px;
+    margin-bottom:10px;
 }
 
 .upgradesButton{
     background-color: #C49A6C;
     border-color: #C49A6C;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 5px;
-    font-size: 14px;
+    font-size: 13px;
     font-style: italic;
     border-radius: 5px;
     display:block;
@@ -274,5 +274,7 @@ h1{
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
 }
+
+
 
 
