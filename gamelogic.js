@@ -23,7 +23,7 @@ let upgrades = {
     summon: { cost: 600, level: 0, idleBoost: 1 },
     ritual: { cost: 850, level: 0, idleBoost: 5 },
     blade: { cost: 1000, level: 0, idleBoost: 10 },
-    ascend: { cost: 200, level: 0 },
+    ascend: { cost: 250000, level: 0 },
     bloodlust: { cost: 10000, active: false }
 };
 
