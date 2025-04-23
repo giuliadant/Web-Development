@@ -7,17 +7,20 @@ document.getElementById("closePopup").addEventListener("click", function () {
 let battlePoints = 0;
 let clickPower = 1;
 let idlePower = 0;
-let permanentBoost = 0; // Flat bonus per click, increases by 1 per ascension
+let permanentBoostMultiplier = 1; // Multiplicative bonus, increases by 50% per ascension
 let totalUpgradesPurchased = 0;
 let hasActivatedBloodlust = false;
 let hasAscended = false;
-let clicks = 0; // Track total clicks
-let idleTime = 0; // Track idle time in seconds
-let lastInteraction = Date.now(); // Timestamp of last user interaction
-let idleInterval; // Make idleInterval accessible to stop it
+let clicks = 0;
+let idleTime = 0;
+let lastInteraction = Date.now();
+let idleInterval;
 
 const Button = document.getElementById("Clicker");
 const Counter = document.getElementById("Counter");
+const BloodlustButton = document.getElementById("bloodlust");
+const BloodlustProgress = document.getElementById("bloodlustProgress");
+const BloodlustProgressBar = document.getElementById("bloodlustProgressBar");
 
 let upgrades = {
     vitality: { cost: 100, level: 0, clickBoost: 2 },
@@ -63,15 +66,18 @@ function displayNextMessage(messageBox) {
 
 // === CORE FUNCTIONS ===
 function updateCounter() {
-    console.log(`Updating counter: battlePoints=${battlePoints}, permanentBoost=${permanentBoost}, idlePower=${idlePower}`);
+    console.log(`Updating counter: battlePoints=${battlePoints}, permanentBoostMultiplier=${permanentBoostMultiplier}, idlePower=${idlePower}`);
     Counter.textContent = `Battle Points: ${battlePoints}`;
     checkAchievements();
 }
 
 function addBP(amount) {
-    const totalAmount = amount + permanentBoost; // Add flat bonus per click
+    let totalAmount = amount * permanentBoostMultiplier; // Apply multiplicative boost
+    if (upgrades.bloodlust.active) {
+        totalAmount *= 2; // Double points during Bloodlust Mode
+    }
     battlePoints += totalAmount;
-    console.log(`Adding BP: amount=${amount}, permanentBoost=${permanentBoost}, totalAmount=${totalAmount}, battlePoints=${battlePoints}`);
+    console.log(`Adding BP: amount=${amount}, permanentBoostMultiplier=${permanentBoostMultiplier}, bloodlustActive=${upgrades.bloodlust.active}, totalAmount=${totalAmount}, battlePoints=${battlePoints}`);
 }
 
 function capitalize(str) {
@@ -108,15 +114,16 @@ function checkAchievements() {
         markAchievementAsCompleted("achievement4", "Warlord");
     }
 
-    if (totalUpgradesPurchased >= 10) {
-        markAchievementAsCompleted("achievement5", "Tinkerer's Touch");
-    }
-
     if (hasActivatedBloodlust) {
-        markAchievementAsCompleted("achievement6", "Bloodlust Unleashed");
+        markAchievementAsCompleted("achievement5", "Bloodlust Unleashed");
     }
 
-    if (idleTime >= 600) { // 10 minutes = 600 seconds
+    if (totalUpgradesPurchased >= 10) {
+        markAchievementAsCompleted("achievement6", "Tinkerer's Touch");
+    }
+
+
+    if (idleTime >= 600) {
         markAchievementAsCompleted("achievement7", "Meditator");
     }
 
@@ -147,8 +154,8 @@ function buyUpgrade(id, effect) {
     if (battlePoints >= upgrades[id].cost) {
         battlePoints -= upgrades[id].cost;
         upgrades[id].level++;
-        totalUpgradesPurchased++;
-        resetIdleTime(); // Reset idle time on upgrade purchase
+        if (id !== "bloodlust") totalUpgradesPurchased++; // Exclude Bloodlust from counting as an upgrade purchase
+        resetIdleTime();
 
         let idleIncrease = 0;
         if (upgrades[id].idleBoost) {
@@ -167,7 +174,7 @@ function buyUpgrade(id, effect) {
             button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrades[id].cost} BP)${upgrades[id].idleBoost ? '<br>' : ''}${bonus}`;
         }
         updateCounter();
-        showMessage(`✅ ${capitalize(id)} upgraded!`);
+        if (id !== "bloodlust") showMessage(`✅ ${capitalize(id)} upgraded!`); // Skip "upgraded" message for Bloodlust
 
         if (idleIncrease > 0) {
             showMessage(`🕒 Idle power increased by ${idleIncrease} BP/s!`);
@@ -179,9 +186,9 @@ function buyUpgrade(id, effect) {
 
 // === CLICK HANDLER ===
 Button.addEventListener("click", function () {
-    console.log(`Before click: battlePoints=${battlePoints}, clickPower=${clickPower}, permanentBoost=${permanentBoost}, idlePower=${idlePower}`);
-    clicks++; // Increment click counter
-    resetIdleTime(); // Reset idle time on interaction
+    console.log(`Before click: battlePoints=${battlePoints}, clickPower=${clickPower}, permanentBoostMultiplier=${permanentBoostMultiplier}, idlePower=${idlePower}`);
+    clicks++;
+    resetIdleTime();
     addBP(clickPower);
     updateCounter();
     console.log(`After click: battlePoints=${battlePoints}, clicks=${clicks}`);
@@ -239,12 +246,33 @@ document.getElementById("blade").addEventListener("click", () => {
 
 // === SPECIAL: BLOODLUST ===
 document.getElementById("bloodlust").addEventListener("click", () => {
+    if (upgrades.bloodlust.active) {
+        showMessage("🩸 Bloodlust Mode is already active!");
+        return;
+    }
+
     buyUpgrade("bloodlust", () => {
         upgrades.bloodlust.active = true;
         hasActivatedBloodlust = true;
-        resetIdleTime(); // Reset idle time on bloodlust activation
-        showMessage("🩸 Bloodlust Mode activated!");
+        BloodlustButton.disabled = true;
+        resetIdleTime();
+        showMessage("🩸 Bloodlust Mode activated! Points doubled for 7 seconds!");
         checkAchievements();
+
+        // Show and animate the progress bar
+        BloodlustProgress.classList.remove("hidden");
+        BloodlustProgressBar.style.width = "100%";
+        setTimeout(() => {
+            BloodlustProgressBar.style.width = "0%";
+        }, 10);
+
+        // Deactivate after 7 seconds
+        setTimeout(() => {
+            upgrades.bloodlust.active = false;
+            BloodlustButton.disabled = false;
+            BloodlustProgress.classList.add("hidden");
+            showMessage("🩸 Bloodlust Mode ended.");
+        }, 7000);
     });
 });
 
@@ -262,18 +290,17 @@ document.getElementById("ascendNo").addEventListener("click", () => {
 });
 
 document.getElementById("ascendYes").addEventListener("click", () => {
-    console.log(`Before Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoost=${permanentBoost}, upgrades=${JSON.stringify(upgrades)}`);
+    console.log(`Before Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoostMultiplier=${permanentBoostMultiplier}, upgrades=${JSON.stringify(upgrades)}`);
 
-    // Stop the idle interval to prevent interference
     clearInterval(idleInterval);
 
     battlePoints = 0;
     clickPower = 1;
     idlePower = 0;
-    clicks = 0; // Reset clicks
-    idleTime = 0; // Reset idle time
-    lastInteraction = Date.now(); // Reset interaction timestamp
-    permanentBoost += 1; // Add +1 BP per click per ascension
+    clicks = 0;
+    idleTime = 0;
+    lastInteraction = Date.now();
+    permanentBoostMultiplier *= 1.5; // Increase multiplier by 50%
 
     for (let key in upgrades) {
         upgrades[key].level = 0;
@@ -284,18 +311,17 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     updateIdlePower();
     updateCounter();
     document.getElementById("ascendConfirm").classList.add("hidden");
-    showMessage(`⚱️ You Ascended! +${permanentBoost} BP per click gained.`);
+    showMessage(`⚱️ You Ascended! +${Math.round((permanentBoostMultiplier - 1) * 100)}% permanent BP boost gained.`);
     initializeUpgradeButtons();
     checkAchievements();
 
-    // Restart idle interval
     idleInterval = setInterval(() => {
         console.log(`Idle Tick: idlePower=${idlePower}, Battle Points=${battlePoints}, idleTime=${idleTime}`);
         runIdleUpgrades();
         updateIdleTime();
     }, 1000);
 
-    console.log(`After Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoost=${permanentBoost}, upgrades=${JSON.stringify(upgrades)}`);
+    console.log(`After Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoostMultiplier=${permanentBoostMultiplier}, upgrades=${JSON.stringify(upgrades)}`);
 });
 
 // === PASSIVE INCOME ===
@@ -314,7 +340,6 @@ function runIdleUpgrades() {
     }
 }
 
-// Start the idle interval
 idleInterval = setInterval(() => {
     console.log(`Idle Tick: idlePower=${idlePower}, Battle Points=${battlePoints}, idleTime=${idleTime}`);
     runIdleUpgrades();
@@ -334,7 +359,3 @@ toggleButton.addEventListener("click", () => {
     }
     console.log("Achievements panel visibility:", achievementsContainer.classList.contains("hidden") ? "Hidden" : "Visible");
 });
-
-
-
-

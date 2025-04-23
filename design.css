@@ -5,7 +5,6 @@ body {
     overflow: hidden;
     font-family: 'Orbitron', sans-serif;
     color: #E0D5B7;
-
 }
 
 body::before {
@@ -30,7 +29,6 @@ h1 {
 
 .popup-button {
     background-color: #C49A6C;
-    border-color: #C49A6C;
     cursor: pointer;
     align-self: flex-end;
     margin-top: 40px;
@@ -44,6 +42,7 @@ h1 {
             1px 1px 2px #000,
             0 0 5px #C49A6C,
             0 0 10px #A0784A;
+    border: 1px solid #C49A6C;
 }
 
 .popup-button:hover {
@@ -86,26 +85,26 @@ h1 {
     padding: 10px 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 12px #ffcc66, 0 0 24px #ff9900;
     box-shadow: 0 0 10px #F5E6C3, 0 0 20px #F5E6C3;
-    color: #F5E6C3; /* Changed for better contrast */
+    color: #F5E6C3;
     border: 3px solid #F5E6C3;
     background: rgba(0, 0, 0, 0.8);
 }
 
 #Clicker {
-    background-color: #a52a2a; /* Dark red for better contrast against the map */
-    border: 2px solid #F5E6C3; /* High-contrast border */
+    background-color: #a52a2a;
+    border: 2px solid #F5E6C3;
     padding: 12px 25px;
     border-radius: 5px;
     font-size: 16px;
     margin-top: 70px;
     cursor: pointer;
     color: #F5E6C3;
-    text-shadow: 1px 1px 2px #000, 0 0 5px #C49A6C; /* Simplified */
+    text-shadow: 1px 1px 2px #000, 0 0 5px #C49A6C;
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
 #Clicker:hover {
-    background: #A42E2E; /* Fixed color */
+    background: #A42E2E;
     transform: scale(1.05);
     box-shadow: 0 0 20px #F5E6C3, 0 0 30px rgb(196, 154, 108);
 }
@@ -138,7 +137,6 @@ h1 {
 
 .upgradesButton {
     background-color: #C49A6C;
-    border-color: #C49A6C;
     cursor: pointer;
     margin-top: 10px;
     padding: 7px;
@@ -153,11 +151,17 @@ h1 {
             1px 1px 2px #000,
             0 0 5px #C49A6C,
             0 0 10px #A0784A;
+    border: 1px solid #C49A6C;
 }
 
-.upgradesButton:hover {
+.upgradesButton:hover:not(:disabled) {
     background-color: #A42E2E;
     border-color: #A42E2E;
+}
+
+.upgradesButton:disabled {
+    background-color: #a9a9a9;
+    cursor: not-allowed;
 }
 
 #manualUpgrades h2 {
@@ -202,6 +206,27 @@ h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
 }
 
+/* Bloodlust Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+#bloodlustProgressBar {
+    width: 100%;
+    height: 100%;
+    background: #ff4040;
+    transition: width 7s linear; /* Updated to 7 seconds */
+}
+
+.progress-bar.hidden {
+    display: none;
+}
+
 #toggleAchievements {
     position: absolute;
     top: 10px;
@@ -213,6 +238,7 @@ h1 {
     cursor: pointer;
     background-color: #382f2f;
     color: white;
+    border: 1px solid #382f2f;
 }
 
 #achievementsContainer {
@@ -229,7 +255,7 @@ h1 {
     border: 2px solid #5A3D31;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
     transition: opacity 0.3s ease-in-out, transform 0.2s ease;
-    opacity: 1; /* Default to visible when not hidden */
+    opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
     visibility: visible;
@@ -263,10 +289,10 @@ h1 {
 }
 
 .achievement.completed {
-    color: #FFD700; /* Gold color for completed achievements */
-    background: rgba(160, 100, 40, 0.5); /* Slightly darker background */
+    color: #FFD700;
+    background: rgba(160, 100, 40, 0.5);
     font-weight: bold;
-    border-left: 5px solid #FFD700; /* Gold border */
+    border-left: 5px solid #FFD700;
     text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
