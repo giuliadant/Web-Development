@@ -193,3 +193,70 @@ document.getElementById("toggleAchievements").addEventListener("click", () => {
     container.classList.toggle("hidden");
     document.getElementById("toggleAchievements").textContent = container.classList.contains("hidden") ? "Achievements ⚔️" : "Hide Achievements ⚔️";
 });
+
+function saveGameState() {
+    const saveData = {
+        battlePoints,
+        clickPower,
+        idlePower,
+        permanentBoostMultiplier,
+        totalUpgradesPurchased,
+        hasActivatedBloodlust,
+        hasAscended,
+        clicks,
+        idleTime,
+        upgrades,
+        lastInteraction
+    };
+
+    fetch('/gameState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saveData)
+    })
+        .then(res => res.json())
+        .then(() => showMessage("💾 Game saved!"))
+        .catch(() => showMessage("⚠️ Save failed."));
+}
+
+function loadGameState() {
+    fetch('/gameState')
+        .then(res => res.json())
+        .then(data => {
+            if (!data || Object.keys(data).length === 0) return showMessage("⚠️ No saved game found.");
+
+            battlePoints = data.battlePoints || 0;
+            clickPower = data.clickPower || 1;
+            idlePower = data.idlePower || 0;
+            permanentBoostMultiplier = data.permanentBoostMultiplier || 1;
+            totalUpgradesPurchased = data.totalUpgradesPurchased || 0;
+            hasActivatedBloodlust = data.hasActivatedBloodlust || false;
+            hasAscended = data.hasAscended || false;
+            clicks = data.clicks || 0;
+            idleTime = data.idleTime || 0;
+            lastInteraction = data.lastInteraction || Date.now();
+
+            for (let key in data.upgrades) {
+                if (upgrades[key]) {
+                    upgrades[key].level = data.upgrades[key].level || 0;
+                    if ('active' in upgrades[key]) upgrades[key].active = data.upgrades[key].active || false;
+                    upgrades[key].cost = data.upgrades[key].cost || upgrades[key].cost;
+                }
+            }
+
+            updateIdlePower();
+            initializeUpgradeButtons();
+            updateCounter();
+            checkAchievements();
+
+            showMessage("📂 Game loaded!");
+        })
+        .catch(() => showMessage("⚠️ Failed to load game."));
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("saveGameBtn").addEventListener("click", saveGameState);
+    document.getElementById("loadGameBtn").addEventListener("click", loadGameState);
+});
+
