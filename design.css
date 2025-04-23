@@ -435,3 +435,11 @@ h1 {
     }
 }
 
+.saveLoadButtons button {
+    white-space: nowrap;
+    color: #F5E6C3;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 1), 0 0 8px #A0784A;
+    background-color: #C49A6C;
+    border-radius: 50px;
+    cursor: pointer;
+}
