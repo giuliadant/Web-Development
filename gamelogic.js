@@ -11,6 +11,9 @@ let permanentBoost = 0; // Flat bonus per click, increases by 1 per ascension
 let totalUpgradesPurchased = 0;
 let hasActivatedBloodlust = false;
 let hasAscended = false;
+let clicks = 0; // Track total clicks
+let idleTime = 0; // Track idle time in seconds
+let lastInteraction = Date.now(); // Timestamp of last user interaction
 let idleInterval; // Make idleInterval accessible to stop it
 
 const Button = document.getElementById("Clicker");
@@ -47,8 +50,7 @@ function displayNextMessage(messageBox) {
     }
 
     isShowingMessage = true;
-    const msg = messageQueue.shift();
-    messageBox.textContent = msg;
+    messageBox.textContent = messageQueue.shift();
     messageBox.style.opacity = 1;
 
     setTimeout(() => {
@@ -90,21 +92,36 @@ function markAchievementAsCompleted(achievementId, achievementName) {
 }
 
 function checkAchievements() {
-    if (battlePoints >= 1000) {
-        markAchievementAsCompleted("achievement1", "Battle Novice");
-    }
     if (totalUpgradesPurchased >= 1) {
-        console.log(`First Step condition met: totalUpgradesPurchased=${totalUpgradesPurchased}`);
-        markAchievementAsCompleted("achievement2", "First Step");
+        markAchievementAsCompleted("achievement1", "First Step");
     }
+
+    if (battlePoints >= 1000) {
+        markAchievementAsCompleted("achievement2", "Battle Novice");
+    }
+
+    if (clicks >= 1000) {
+        markAchievementAsCompleted("achievement3", "Tapping into Madness");
+    }
+
     if (battlePoints >= 5000) {
-        markAchievementAsCompleted("achievement3", "Battle Master");
+        markAchievementAsCompleted("achievement4", "Warlord");
     }
+
+    if (totalUpgradesPurchased >= 10) {
+        markAchievementAsCompleted("achievement5", "Tinkerer's Touch");
+    }
+
     if (hasActivatedBloodlust) {
-        markAchievementAsCompleted("achievement4", "Bloodlust Unleashed");
+        markAchievementAsCompleted("achievement6", "Bloodlust Unleashed");
     }
+
+    if (idleTime >= 600) { // 10 minutes = 600 seconds
+        markAchievementAsCompleted("achievement7", "Meditator");
+    }
+
     if (hasAscended) {
-        markAchievementAsCompleted("achievement5", "The Ultimate Legacy");
+        markAchievementAsCompleted("achievement8", "Born Anew");
     }
 }
 
@@ -125,11 +142,13 @@ function initializeUpgradeButtons() {
 
 document.addEventListener("DOMContentLoaded", initializeUpgradeButtons);
 
+// === BUY UPGRADE ===
 function buyUpgrade(id, effect) {
     if (battlePoints >= upgrades[id].cost) {
         battlePoints -= upgrades[id].cost;
         upgrades[id].level++;
         totalUpgradesPurchased++;
+        resetIdleTime(); // Reset idle time on upgrade purchase
 
         let idleIncrease = 0;
         if (upgrades[id].idleBoost) {
@@ -161,10 +180,24 @@ function buyUpgrade(id, effect) {
 // === CLICK HANDLER ===
 Button.addEventListener("click", function () {
     console.log(`Before click: battlePoints=${battlePoints}, clickPower=${clickPower}, permanentBoost=${permanentBoost}, idlePower=${idlePower}`);
+    clicks++; // Increment click counter
+    resetIdleTime(); // Reset idle time on interaction
     addBP(clickPower);
     updateCounter();
-    console.log(`After click: battlePoints=${battlePoints}`);
+    console.log(`After click: battlePoints=${battlePoints}, clicks=${clicks}`);
 });
+
+// === IDLE TIME TRACKING ===
+function resetIdleTime() {
+    lastInteraction = Date.now();
+    idleTime = 0;
+    console.log("Idle time reset");
+}
+
+function updateIdleTime() {
+    idleTime = Math.floor((Date.now() - lastInteraction) / 1000);
+    console.log(`Idle time: ${idleTime} seconds`);
+}
 
 // === MANUAL UPGRADE EVENTS ===
 document.getElementById("vitality").addEventListener("click", () => {
@@ -209,6 +242,7 @@ document.getElementById("bloodlust").addEventListener("click", () => {
     buyUpgrade("bloodlust", () => {
         upgrades.bloodlust.active = true;
         hasActivatedBloodlust = true;
+        resetIdleTime(); // Reset idle time on bloodlust activation
         showMessage("🩸 Bloodlust Mode activated!");
         checkAchievements();
     });
@@ -230,12 +264,15 @@ document.getElementById("ascendNo").addEventListener("click", () => {
 document.getElementById("ascendYes").addEventListener("click", () => {
     console.log(`Before Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoost=${permanentBoost}, upgrades=${JSON.stringify(upgrades)}`);
 
-    // Stop the idle interval to prevent interference during testing
+    // Stop the idle interval to prevent interference
     clearInterval(idleInterval);
 
     battlePoints = 0;
     clickPower = 1;
     idlePower = 0;
+    clicks = 0; // Reset clicks
+    idleTime = 0; // Reset idle time
+    lastInteraction = Date.now(); // Reset interaction timestamp
     permanentBoost += 1; // Add +1 BP per click per ascension
 
     for (let key in upgrades) {
@@ -250,6 +287,13 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     showMessage(`⚱️ You Ascended! +${permanentBoost} BP per click gained.`);
     initializeUpgradeButtons();
     checkAchievements();
+
+    // Restart idle interval
+    idleInterval = setInterval(() => {
+        console.log(`Idle Tick: idlePower=${idlePower}, Battle Points=${battlePoints}, idleTime=${idleTime}`);
+        runIdleUpgrades();
+        updateIdleTime();
+    }, 1000);
 
     console.log(`After Ascend: battlePoints=${battlePoints}, clickPower=${clickPower}, idlePower=${idlePower}, permanentBoost=${permanentBoost}, upgrades=${JSON.stringify(upgrades)}`);
 });
@@ -272,8 +316,9 @@ function runIdleUpgrades() {
 
 // Start the idle interval
 idleInterval = setInterval(() => {
-    console.log(`Idle Tick: idlePower=${idlePower}, Battle Points=${battlePoints}`);
+    console.log(`Idle Tick: idlePower=${idlePower}, Battle Points=${battlePoints}, idleTime=${idleTime}`);
     runIdleUpgrades();
+    updateIdleTime();
 }, 1000);
 
 // === ACHIEVEMENTS TOGGLE ===
@@ -289,6 +334,7 @@ toggleButton.addEventListener("click", () => {
     }
     console.log("Achievements panel visibility:", achievementsContainer.classList.contains("hidden") ? "Hidden" : "Visible");
 });
+
 
 
 
