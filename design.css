@@ -8,7 +8,7 @@ body {
     color: #E0D5B7;
 }
 
-body::before {
+body:before {
     content: '';
     position: fixed;
     top: 0;

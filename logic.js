@@ -1,4 +1,5 @@
 let battlePoints = 0, clickPower = 1, idlePower = 0, permanentBoostMultiplier = 1, totalUpgradesPurchased = 0, hasActivatedBloodlust = false, hasAscended = false, clicks = 0, idleTime = 0, lastInteraction = Date.now();
+let suppressNotifications = false;
 
 const upgrades = {
     vitality: { cost: 100, level: 0, clickBoost: 2 },
@@ -8,7 +9,7 @@ const upgrades = {
     ritual: { cost: 850, level: 0, idleBoost: 5 },
     blade: { cost: 1000, level: 0, idleBoost: 10 },
     ascend: { cost: 250000, level: 0 },
-    bloodlust: { cost: 10000, active: false }
+    bloodlust: { cost: 5000, active: false, level: 0 }
 };
 
 const messageQueue = [];
@@ -19,6 +20,7 @@ document.getElementById("closePopup").addEventListener("click", () => {
 });
 
 function showMessage(msg) {
+    if (suppressNotifications) return;
     messageQueue.push(msg);
     if (isShowingMessage) return;
 
@@ -49,7 +51,7 @@ function updateCounter() {
 }
 
 function addBP(amount) {
-    battlePoints += amount * permanentBoostMultiplier * (upgrades.bloodlust.active ? 2 : 1);
+    battlePoints += amount * permanentBoostMultiplier * (upgrades.bloodlust.active ? 20 : 1);
 }
 
 function markAchievement(achievementId, achievementName) {
@@ -63,19 +65,19 @@ function markAchievement(achievementId, achievementName) {
 
 function checkAchievements() {
     if (totalUpgradesPurchased >= 1) markAchievement("achievement1", "First Step");
-    if (battlePoints >= 1000) markAchievement("achievement2", "Battle Novice");
+    if (battlePoints >= 1000) markAchievement("achievement2", "Achiever");
     if (clicks >= 1000) markAchievement("achievement3", "Tapping into Madness");
-    if (battlePoints >= 5000) markAchievement("achievement4", "Warlord");
-    if (totalUpgradesPurchased >= 10) markAchievement("achievement5", "Tinkerer's Touch");
-    if (hasActivatedBloodlust) markAchievement("achievement6", "Bloodlust Unleashed");
-    if (idleTime >= 600) markAchievement("achievement7", "Meditator");
-    if (hasAscended) markAchievement("achievement8", "Born Anew");
+    if (battlePoints >= 5000) markAchievement("achievement4", "Battle Master");
+    if (totalUpgradesPurchased >= 10) markAchievement("achievement5", "Can't Get Enough");
+    if (hasActivatedBloodlust) markAchievement("achievement6", "Power Surge");
+    if (idleTime >= 600) markAchievement("achievement7", "Take a Break");
+    if (hasAscended) markAchievement("achievement8", "Fresh Start");
 }
 
 function initializeUpgradeButtons() {
     for (let id in upgrades) {
         const upgrade = upgrades[id], button = document.getElementById(id);
-        if (!button || (!upgrade.clickBoost && !upgrade.idleBoost)) continue;
+        if (!button || (!upgrade.clickBoost && !upgrade.idleBoost && id !== "bloodlust" && id !== "ascend")) continue;
         button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrade.cost} BP)${upgrade.idleBoost ? '<br>' : ''}${upgrade.clickBoost ? `(+${upgrade.clickBoost}/click)` : upgrade.idleBoost ? `(+${upgrade.idleBoost}/s)` : ''}`;
     }
 }
@@ -122,11 +124,12 @@ document.getElementById("bloodlust").addEventListener("click", () => {
     if (upgrades.bloodlust.active) return showMessage("🩸 Bloodlust Mode is already active!");
     buyUpgrade("bloodlust", () => {
         upgrades.bloodlust.active = true;
+        upgrades.bloodlust.level++;
         hasActivatedBloodlust = true;
         document.getElementById("bloodlust").disabled = true;
         lastInteraction = Date.now();
         idleTime = 0;
-        showMessage("🩸 Bloodlust Mode activated! Points doubled for 7 seconds!");
+        showMessage("🩸 Bloodlust Mode activated! x20 gain of BP for 7 seconds!");
         checkAchievements();
         const progress = document.getElementById("bloodlustProgress"), bar = document.getElementById("bloodlustProgressBar");
         progress.classList.remove("hidden");
@@ -159,6 +162,7 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     permanentBoostMultiplier *= 1.5;
     for (let key in upgrades) {
         upgrades[key].level = 0;
+        upgrades[key].cost = key === "vitality" ? 100 : key === "skill" ? 250 : key === "strength" ? 400 : key === "summon" ? 600 : key === "ritual" ? 850 : key === "blade" ? 1000 : key === "ascend" ? 250000 : 10000;
         if (upgrades[key].hasOwnProperty('active')) upgrades[key].active = false;
     }
     hasAscended = true;
@@ -195,6 +199,11 @@ document.getElementById("toggleAchievements").addEventListener("click", () => {
 });
 
 function saveGameState() {
+    for (let key in upgrades) {
+        if (!Number.isFinite(upgrades[key].cost) || !Number.isFinite(upgrades[key].level)) {
+            console.warn(`Invalid data for ${key}:`, upgrades[key]);
+        }
+    }
     const saveData = {
         battlePoints,
         clickPower,
@@ -208,23 +217,34 @@ function saveGameState() {
         upgrades,
         lastInteraction
     };
-
+    console.log('Saving game state:', JSON.stringify(saveData, null, 2));
     fetch('/gameState', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(saveData)
     })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            return res.json();
+        })
         .then(() => showMessage("💾 Game saved!"))
-        .catch(() => showMessage("⚠️ Save failed."));
+        .catch(err => showMessage(`⚠️ Save failed: ${err.message}`));
 }
 
 function loadGameState() {
+    console.log('Attempting to load game state...');
+    suppressNotifications = true;
     fetch('/gameState')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            return res.json();
+        })
         .then(data => {
-            if (!data || Object.keys(data).length === 0) return showMessage("⚠️ No saved game found.");
-
+            if (!data || Object.keys(data).length === 0) {
+                showMessage("⚠️ No saved game found.");
+                suppressNotifications = false;
+                return;
+            }
             battlePoints = data.battlePoints || 0;
             clickPower = data.clickPower || 1;
             idlePower = data.idlePower || 0;
@@ -235,24 +255,35 @@ function loadGameState() {
             clicks = data.clicks || 0;
             idleTime = data.idleTime || 0;
             lastInteraction = data.lastInteraction || Date.now();
-
-            for (let key in data.upgrades) {
-                if (upgrades[key]) {
+            console.log('Loaded game state:', JSON.stringify(data, null, 2));
+            for (let key in upgrades) {
+                if (data.upgrades && data.upgrades[key]) {
                     upgrades[key].level = data.upgrades[key].level || 0;
-                    if ('active' in upgrades[key]) upgrades[key].active = data.upgrades[key].active || false;
                     upgrades[key].cost = data.upgrades[key].cost || upgrades[key].cost;
+                    if ('active' in upgrades[key]) {
+                        upgrades[key].active = data.upgrades[key].active || false;
+                    }
+                    if ('clickBoost' in upgrades[key]) {
+                        upgrades[key].clickBoost = data.upgrades[key].clickBoost || upgrades[key].clickBoost;
+                    }
+                    if ('idleBoost' in upgrades[key]) {
+                        upgrades[key].idleBoost = data.upgrades[key].idleBoost || upgrades[key].idleBoost;
+                    }
+                } else {
+                    console.warn(`Upgrade ${key} not found in saved data, using defaults.`);
                 }
             }
-
             updateIdlePower();
             initializeUpgradeButtons();
             updateCounter();
             checkAchievements();
-
+            suppressNotifications = false;
             showMessage("📂 Game loaded!");
         })
-        .catch(() => showMessage("⚠️ Failed to load game."));
-
+        .catch(err => {
+            suppressNotifications = false;
+            showMessage(`⚠️ Failed to load game: ${err.message}`);
+        });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
