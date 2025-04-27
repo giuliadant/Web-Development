@@ -8,7 +8,7 @@ const upgrades = {
     summon: { cost: 600, level: 0, idleBoost: 1 },
     ritual: { cost: 850, level: 0, idleBoost: 5 },
     blade: { cost: 1000, level: 0, idleBoost: 10 },
-    ascend: { cost: 250000, level: 0 },
+    ascend: { cost: 750000, level: 0 },
     bloodlust: { cost: 5000, active: false, level: 0 }
 };
 
@@ -41,8 +41,8 @@ function displayNextMessage(messageBox) {
     messageBox.style.opacity = 1;
     setTimeout(() => {
         messageBox.style.opacity = 0;
-        setTimeout(() => displayNextMessage(messageBox), 300);
-    }, 3000);
+        setTimeout(() => displayNextMessage(messageBox), 100);
+    }, 1500);
 }
 
 function updateCounter() {
@@ -78,7 +78,8 @@ function initializeUpgradeButtons() {
     for (let id in upgrades) {
         const upgrade = upgrades[id], button = document.getElementById(id);
         if (!button || (!upgrade.clickBoost && !upgrade.idleBoost && id !== "bloodlust" && id !== "ascend")) continue;
-        button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrade.cost} BP)${upgrade.idleBoost ? '<br>' : ''}${upgrade.clickBoost ? `(+${upgrade.clickBoost}/click)` : upgrade.idleBoost ? `(+${upgrade.idleBoost}/s)` : ''}`;
+        button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrade.cost} BP)${upgrade.idleBoost
+            ? '<br>' : ''}${upgrade.clickBoost ? `(+${upgrade.clickBoost}/click)` : upgrade.idleBoost ? `(+${upgrade.idleBoost}/s)` : ''}`;
     }
 }
 
@@ -95,7 +96,9 @@ function buyUpgrade(id, effect) {
         upgrades[id].cost = Math.floor(upgrades[id].cost * 1.5);
         const button = document.getElementById(id);
         if (button) {
-            button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrades[id].cost} BP)${upgrades[id].idleBoost ? '<br>' : ''}${upgrades[id].clickBoost ? `(+${upgrades[id].clickBoost}/click)` : upgrades[id].idleBoost ? `(+${upgrades[id].idleBoost}/s)` : ''}`;
+            button.innerHTML = `${button.innerText.split('(')[0].trim()} 
+            (Cost: ${upgrades[id].cost} BP)${upgrades[id].idleBoost ? '<br>' : ''}
+            ${upgrades[id].clickBoost ? `(+${upgrades[id].clickBoost}/click)` : upgrades[id].idleBoost ? `(+${upgrades[id].idleBoost}/s)` : ''}`;
         }
         updateCounter();
         if (id !== "bloodlust") showMessage(`✅ ${id.charAt(0).toUpperCase() + id.slice(1)} upgraded!`);
@@ -113,12 +116,18 @@ document.getElementById("Clicker").addEventListener("click", () => {
     updateCounter();
 });
 
-document.getElementById("vitality").addEventListener("click", () => buyUpgrade("vitality", () => clickPower += upgrades.vitality.clickBoost));
-document.getElementById("skill").addEventListener("click", () => buyUpgrade("skill", () => clickPower += upgrades.skill.clickBoost));
-document.getElementById("strength").addEventListener("click", () => buyUpgrade("strength", () => clickPower += upgrades.strength.clickBoost));
-document.getElementById("summon").addEventListener("click", () => buyUpgrade("summon", () => updateIdlePower()));
-document.getElementById("ritual").addEventListener("click", () => buyUpgrade("ritual", () => updateIdlePower()));
-document.getElementById("blade").addEventListener("click", () => buyUpgrade("blade", () => updateIdlePower()));
+document.getElementById("vitality").addEventListener("click", () =>
+    buyUpgrade("vitality", () => clickPower += upgrades.vitality.clickBoost));
+document.getElementById("skill").addEventListener("click", () =>
+    buyUpgrade("skill", () => clickPower += upgrades.skill.clickBoost));
+document.getElementById("strength").addEventListener("click", () =>
+    buyUpgrade("strength", () => clickPower += upgrades.strength.clickBoost));
+document.getElementById("summon").addEventListener("click", () =>
+    buyUpgrade("summon", () => updateIdlePower()));
+document.getElementById("ritual").addEventListener("click", () =>
+    buyUpgrade("ritual", () => updateIdlePower()));
+document.getElementById("blade").addEventListener("click", () =>
+    buyUpgrade("blade", () => updateIdlePower()));
 
 document.getElementById("bloodlust").addEventListener("click", () => {
     if (upgrades.bloodlust.active) return showMessage("🩸 Bloodlust Mode is already active!");
@@ -131,7 +140,8 @@ document.getElementById("bloodlust").addEventListener("click", () => {
         idleTime = 0;
         showMessage("🩸 Bloodlust Mode activated! x20 gain of BP for 7 seconds!");
         checkAchievements();
-        const progress = document.getElementById("bloodlustProgress"), bar = document.getElementById("bloodlustProgressBar");
+        const progress = document.getElementById
+        ("bloodlustProgress"), bar = document.getElementById("bloodlustProgressBar");
         progress.classList.remove("hidden");
         bar.style.width = "100%";
         setTimeout(() => bar.style.width = "0%", 10);
@@ -149,7 +159,8 @@ document.getElementById("ascend").addEventListener("click", () => {
     else showMessage("❌ Not enough BP to Ascend.");
 });
 
-document.getElementById("ascendNo").addEventListener("click", () => document.getElementById("ascendConfirm").classList.add("hidden"));
+document.getElementById("ascendNo").addEventListener
+("click", () => document.getElementById("ascendConfirm").classList.add("hidden"));
 
 document.getElementById("ascendYes").addEventListener("click", () => {
     clearInterval(idleInterval);
@@ -159,16 +170,17 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     clicks = 0;
     idleTime = 0;
     lastInteraction = Date.now();
-    permanentBoostMultiplier *= 1.5;
+    permanentBoostMultiplier *= 2;
     for (let key in upgrades) {
         upgrades[key].level = 0;
-        upgrades[key].cost = key === "vitality" ? 100 : key === "skill" ? 250 : key === "strength" ? 400 : key === "summon" ? 600 : key === "ritual" ? 850 : key === "blade" ? 1000 : key === "ascend" ? 250000 : 10000;
+        upgrades[key].cost = key === "vitality" ? 100 : key === "skill" ? 250 : key === "strength" ?
+            400 : key === "summon" ? 600 : key === "ritual" ? 850 : key === "blade" ? 1000 : key === "ascend" ? 250000 : 10000;
         if (upgrades[key].hasOwnProperty('active')) upgrades[key].active = false;
     }
     hasAscended = true;
     updateCounter();
     document.getElementById("ascendConfirm").classList.add("hidden");
-    showMessage(`⚱️ You Ascended! +${Math.round((permanentBoostMultiplier - 1) * 100)}% permanent BP boost gained.`);
+    showMessage(`⚱️ You Ascended! Your BP gain is now doubled permanently!`);
     initializeUpgradeButtons();
     checkAchievements();
     idleInterval = setInterval(() => {
@@ -181,7 +193,8 @@ document.getElementById("ascendYes").addEventListener("click", () => {
 });
 
 function updateIdlePower() {
-    idlePower = upgrades.summon.level * upgrades.summon.idleBoost + upgrades.ritual.level * upgrades.ritual.idleBoost + upgrades.blade.level * upgrades.blade.idleBoost;
+    idlePower = upgrades.summon.level * upgrades.summon.idleBoost
+        + upgrades.ritual.level * upgrades.ritual.idleBoost + upgrades.blade.level * upgrades.blade.idleBoost;
 }
 
 let idleInterval = setInterval(() => {
