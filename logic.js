@@ -78,8 +78,8 @@ function initializeUpgradeButtons() {
     for (let id in upgrades) {
         const upgrade = upgrades[id], button = document.getElementById(id);
         if (!button || (!upgrade.clickBoost && !upgrade.idleBoost && id !== "bloodlust" && id !== "ascend")) continue;
-        button.innerHTML = `${button.innerText.split('(')[0].trim()} (Cost: ${upgrade.cost} BP)${upgrade.idleBoost
-            ? '<br>' : ''}${upgrade.clickBoost ? `(+${upgrade.clickBoost}/click)` : upgrade.idleBoost ? `(+${upgrade.idleBoost}/s)` : ''}`;
+        const baseText = button.innerText.split('(')[0].trim();
+        button.innerHTML = `${baseText} (Cost: ${upgrade.cost} BP) ${upgrade.clickBoost ? `(+${upgrade.clickBoost} BP/click)` : upgrade.idleBoost ? `(+${upgrade.idleBoost} BP/second)` : ''}`;
     }
 }
 
@@ -96,13 +96,12 @@ function buyUpgrade(id, effect) {
         upgrades[id].cost = Math.floor(upgrades[id].cost * 1.5);
         const button = document.getElementById(id);
         if (button) {
-            button.innerHTML = `${button.innerText.split('(')[0].trim()} 
-            (Cost: ${upgrades[id].cost} BP)${upgrades[id].idleBoost ? '<br>' : ''}
-            ${upgrades[id].clickBoost ? `(+${upgrades[id].clickBoost}/click)` : upgrades[id].idleBoost ? `(+${upgrades[id].idleBoost}/s)` : ''}`;
+            const baseText = button.innerText.split('(')[0].trim();
+            button.innerHTML = `${baseText} (Cost: ${upgrades[id].cost} BP) ${upgrades[id].clickBoost ? `(+${upgrades[id].clickBoost} BP/click)` : upgrades[id].idleBoost ? `(+${upgrades[id].idleBoost} BP/second)` : ''}`;
         }
         updateCounter();
         if (id !== "bloodlust") showMessage(`✅ ${id.charAt(0).toUpperCase() + id.slice(1)} upgraded!`);
-        if (upgrades[id].idleBoost) showMessage(`🕒 Idle power +${upgrades[id].idleBoost} BP/s!`);
+        if (upgrades[id].idleBoost) showMessage(`🕒 Idle power +${upgrades[id].idleBoost} BP/second!`);
     } else {
         showMessage(`❌ Not enough BP for ${id.charAt(0).toUpperCase() + id.slice(1)}.`);
     }
