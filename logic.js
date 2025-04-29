@@ -362,6 +362,7 @@ function loadGameState() {
             initializeUpgradeButtons();
             updateCounter();
             checkAchievements();
+            startIdleInterval();
             suppressNotifications = false;
             showMessage("📂 Game loaded!");
         })
