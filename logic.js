@@ -1,5 +1,30 @@
-let battlePoints = 0, clickPower = 1, idlePower = 0, permanentBoostMultiplier = 1, totalUpgradesPurchased = 0, hasActivatedBloodlust = false, hasAscended = false, clicks = 0, idleTime = 0, lastInteraction = Date.now();
-let suppressNotifications = false;
+// Game state variables
+let battlePoints = 0,
+    clickPower = 1,
+    idlePower = 0,
+    permanentBoostMultiplier = 1,
+    totalUpgradesPurchased = 0,
+    hasActivatedBloodlust = false,
+    hasAscended = false,
+    clicks = 0,
+    idleTime = 0,
+    lastInteraction = Date.now(),
+    suppressNotifications = false,
+    ascensionCount = parseInt(localStorage.getItem("ascensionCount")) || 0,
+    idleInterval;
+
+// Base upgrades costs, used for resetting/recalculating
+const baseCosts = {
+    vitality: 100,
+    skill: 250,
+    strength: 400,
+    summon: 600,
+    ritual: 850,
+    blade: 1000,
+    ascend: 500000,
+    bloodlust: 5000
+};
+
 
 const upgrades = {
     vitality: { cost: 100, level: 0, clickBoost: 2 },
@@ -8,10 +33,11 @@ const upgrades = {
     summon: { cost: 600, level: 0, idleBoost: 1 },
     ritual: { cost: 850, level: 0, idleBoost: 5 },
     blade: { cost: 1000, level: 0, idleBoost: 10 },
-    ascend: { cost: 750000, level: 0 },
+    ascend: { cost: 500000, level: 0 },
     bloodlust: { cost: 5000, active: false, level: 0 }
 };
 
+// Notification system queu
 const messageQueue = [];
 let isShowingMessage = false;
 
@@ -19,6 +45,7 @@ document.getElementById("closePopup").addEventListener("click", () => {
     document.getElementById("Popup").style.display = "none";
 });
 
+// Push messages to queue and display them
 function showMessage(msg) {
     if (suppressNotifications) return;
     messageQueue.push(msg);
@@ -45,15 +72,18 @@ function displayNextMessage(messageBox) {
     }, 1500);
 }
 
+// Updates counter display and checks for achievements
 function updateCounter() {
     document.getElementById("Counter").textContent = `Battle Points: ${battlePoints}`;
     checkAchievements();
 }
 
+//Adds BP scaled by boost multiplier and bloodlust mode
 function addBP(amount) {
     battlePoints += amount * permanentBoostMultiplier * (upgrades.bloodlust.active ? 20 : 1);
 }
 
+//Achievements unlocked
 function markAchievement(achievementId, achievementName) {
     const el = document.getElementById(achievementId);
     if (el && el.dataset.achieved === "false") {
@@ -63,6 +93,7 @@ function markAchievement(achievementId, achievementName) {
     }
 }
 
+// Check achievements requirements
 function checkAchievements() {
     if (totalUpgradesPurchased >= 1) markAchievement("achievement1", "First Step");
     if (battlePoints >= 1000) markAchievement("achievement2", "Achiever");
@@ -74,6 +105,7 @@ function checkAchievements() {
     if (hasAscended) markAchievement("achievement8", "Fresh Start");
 }
 
+// Buttons with costs and effects
 function initializeUpgradeButtons() {
     for (let id in upgrades) {
         const upgrade = upgrades[id], button = document.getElementById(id);
@@ -83,8 +115,7 @@ function initializeUpgradeButtons() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", initializeUpgradeButtons);
-
+// Buying an upgrade
 function buyUpgrade(id, effect) {
     if (battlePoints >= upgrades[id].cost) {
         battlePoints -= upgrades[id].cost;
@@ -107,6 +138,7 @@ function buyUpgrade(id, effect) {
     }
 }
 
+// Main clicker
 document.getElementById("Clicker").addEventListener("click", () => {
     clicks++;
     lastInteraction = Date.now();
@@ -115,6 +147,7 @@ document.getElementById("Clicker").addEventListener("click", () => {
     updateCounter();
 });
 
+// Manual upgrades
 document.getElementById("vitality").addEventListener("click", () =>
     buyUpgrade("vitality", () => clickPower += upgrades.vitality.clickBoost * (2 ** (upgrades.vitality.level - 1))));
 
@@ -124,6 +157,7 @@ document.getElementById("skill").addEventListener("click", () =>
 document.getElementById("strength").addEventListener("click", () =>
     buyUpgrade("strength", () => clickPower += upgrades.strength.clickBoost * (2 ** (upgrades.strength.level - 1))));
 
+// Idle upgrades
 document.getElementById("summon").addEventListener("click", () =>
     buyUpgrade("summon", updateIdlePower));
 
@@ -134,7 +168,7 @@ document.getElementById("blade").addEventListener("click", () =>
     buyUpgrade("blade", updateIdlePower));
 
 
-
+// Bloodlust mode
 document.getElementById("bloodlust").addEventListener("click", () => {
     if (upgrades.bloodlust.active) return showMessage("🩸 Bloodlust Mode is already active!");
     buyUpgrade("bloodlust", () => {
@@ -160,6 +194,7 @@ document.getElementById("bloodlust").addEventListener("click", () => {
     });
 });
 
+// Ascend confirmation
 document.getElementById("ascend").addEventListener("click", () => {
     if (battlePoints >= upgrades.ascend.cost) document.getElementById("ascendConfirm").classList.remove("hidden");
     else showMessage("❌ Not enough BP to Ascend.");
@@ -168,6 +203,7 @@ document.getElementById("ascend").addEventListener("click", () => {
 document.getElementById("ascendNo").addEventListener
 ("click", () => document.getElementById("ascendConfirm").classList.add("hidden"));
 
+// Ascend applied with permanentboost for next playthrough
 document.getElementById("ascendYes").addEventListener("click", () => {
     clearInterval(idleInterval);
     battlePoints = 0;
@@ -177,11 +213,23 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     idleTime = 0;
     lastInteraction = Date.now();
     permanentBoostMultiplier *= 2;
+    ascensionCount++;
+    localStorage.setItem("ascensionCount", ascensionCount);
+
     for (let key in upgrades) {
         upgrades[key].level = 0;
-        upgrades[key].cost = key === "vitality" ? 100 : key === "skill" ? 250 : key === "strength" ?
-            400 : key === "summon" ? 600 : key === "ritual" ? 850 : key === "blade" ? 1000 : key === "ascend" ? 250000 : 10000;
-        if (upgrades[key].hasOwnProperty('active')) upgrades[key].active = false;
+
+        if (key === "ascend") {
+            upgrades[key].cost = Math.floor(baseCosts.ascend * Math.pow(2, ascensionCount));
+        } else if (key === "bloodlust") {
+            upgrades[key].cost = Math.floor(baseCosts.bloodlust * Math.pow(1.5, ascensionCount));
+        } else {
+            upgrades[key].cost = baseCosts[key];
+        }
+
+        if (upgrades[key].hasOwnProperty('active')) {
+            upgrades[key].active = false;
+        }
     }
     hasAscended = true;
     updateCounter();
@@ -189,6 +237,7 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     showMessage(`⚱️ You Ascended! Your BP gain is now doubled permanently!`);
     initializeUpgradeButtons();
     checkAchievements();
+
     idleInterval = setInterval(() => {
         if (idlePower > 0) {
             addBP(idlePower);
@@ -198,6 +247,7 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     }, 1000);
 });
 
+// Total idle power from idle upgrades
 function updateIdlePower() {
     idlePower =
         (upgrades.summon.level > 0 ? upgrades.summon.idleBoost * (2 ** (upgrades.summon.level - 1)) : 0) +
@@ -205,21 +255,14 @@ function updateIdlePower() {
         (upgrades.blade.level > 0 ? upgrades.blade.idleBoost * (2 ** (upgrades.blade.level - 1)) : 0);
 }
 
-
-let idleInterval = setInterval(() => {
-    if (idlePower > 0) {
-        addBP(idlePower);
-        updateCounter();
-    }
-    idleTime = Math.floor((Date.now() - lastInteraction) / 1000);
-}, 1000);
-
+// Achievement toggle
 document.getElementById("toggleAchievements").addEventListener("click", () => {
     const container = document.getElementById("achievementsContainer");
     container.classList.toggle("hidden");
     document.getElementById("toggleAchievements").textContent = container.classList.contains("hidden") ? "Achievements ⚔️" : "Hide Achievements ⚔️";
 });
 
+// Save game
 function saveGameState() {
     for (let key in upgrades) {
         if (!Number.isFinite(upgrades[key].cost) || !Number.isFinite(upgrades[key].level)) {
@@ -237,7 +280,8 @@ function saveGameState() {
         clicks,
         idleTime,
         upgrades,
-        lastInteraction
+        lastInteraction,
+        ascensionCount
     };
     console.log('Saving game state:', JSON.stringify(saveData, null, 2));
     fetch('/gameState', {
@@ -253,6 +297,7 @@ function saveGameState() {
         .catch(err => showMessage(`⚠️ Save failed: ${err.message}`));
 }
 
+// Load game
 function loadGameState() {
     console.log('Attempting to load game state...');
     suppressNotifications = true;
@@ -277,6 +322,7 @@ function loadGameState() {
             clicks = data.clicks || 0;
             idleTime = data.idleTime || 0;
             lastInteraction = data.lastInteraction || Date.now();
+            ascensionCount = data.ascensionCount || 0;
             console.log('Loaded game state:', JSON.stringify(data, null, 2));
             for (let key in upgrades) {
                 if (data.upgrades && data.upgrades[key]) {
@@ -309,6 +355,7 @@ function loadGameState() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    initializeUpgradeButtons();
     document.getElementById("saveGameBtn").addEventListener("click", saveGameState);
     document.getElementById("loadGameBtn").addEventListener("click", loadGameState);
 });
