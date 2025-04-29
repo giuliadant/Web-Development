@@ -165,6 +165,11 @@ h1 {
     cursor: not-allowed;
 }
 
+#skill {
+    font-size: 14px;
+}
+
+
 #manualUpgrades h2 {
     white-space: nowrap;
     color: #F5E6C3;
@@ -330,7 +335,7 @@ h1 {
 
 .ascend-buttons button {
     margin: 10px;
-    padding: 8px 16px;
+    padding: 30px 16px;
     background-color: #C49A6C;
     color: white;
     border: none;
@@ -340,6 +345,18 @@ h1 {
 
 .ascend-buttons button:hover {
     background-color: #A42E2E;
+}
+
+.ascend-fix .emoji {
+    position: relative;
+    top: 2px;
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+#ascend {
+    white-space: nowrap;
+    font-size: 12px;
 }
 
 .hidden {

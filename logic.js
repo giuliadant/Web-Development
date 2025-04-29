@@ -116,17 +116,24 @@ document.getElementById("Clicker").addEventListener("click", () => {
 });
 
 document.getElementById("vitality").addEventListener("click", () =>
-    buyUpgrade("vitality", () => clickPower += upgrades.vitality.clickBoost));
+    buyUpgrade("vitality", () => clickPower += upgrades.vitality.clickBoost * (2 ** (upgrades.vitality.level - 1))));
+
 document.getElementById("skill").addEventListener("click", () =>
-    buyUpgrade("skill", () => clickPower += upgrades.skill.clickBoost));
+    buyUpgrade("skill", () => clickPower += upgrades.skill.clickBoost * (2 ** (upgrades.skill.level - 1))));
+
 document.getElementById("strength").addEventListener("click", () =>
-    buyUpgrade("strength", () => clickPower += upgrades.strength.clickBoost));
+    buyUpgrade("strength", () => clickPower += upgrades.strength.clickBoost * (2 ** (upgrades.strength.level - 1))));
+
 document.getElementById("summon").addEventListener("click", () =>
-    buyUpgrade("summon", () => updateIdlePower()));
+    buyUpgrade("summon", updateIdlePower));
+
 document.getElementById("ritual").addEventListener("click", () =>
-    buyUpgrade("ritual", () => updateIdlePower()));
+    buyUpgrade("ritual", updateIdlePower));
+
 document.getElementById("blade").addEventListener("click", () =>
-    buyUpgrade("blade", () => updateIdlePower()));
+    buyUpgrade("blade", updateIdlePower));
+
+
 
 document.getElementById("bloodlust").addEventListener("click", () => {
     if (upgrades.bloodlust.active) return showMessage("🩸 Bloodlust Mode is already active!");
@@ -192,9 +199,12 @@ document.getElementById("ascendYes").addEventListener("click", () => {
 });
 
 function updateIdlePower() {
-    idlePower = upgrades.summon.level * upgrades.summon.idleBoost
-        + upgrades.ritual.level * upgrades.ritual.idleBoost + upgrades.blade.level * upgrades.blade.idleBoost;
+    idlePower =
+        (upgrades.summon.level > 0 ? upgrades.summon.idleBoost * (2 ** (upgrades.summon.level - 1)) : 0) +
+        (upgrades.ritual.level > 0 ? upgrades.ritual.idleBoost * (2 ** (upgrades.ritual.level - 1)) : 0) +
+        (upgrades.blade.level > 0 ? upgrades.blade.idleBoost * (2 ** (upgrades.blade.level - 1)) : 0);
 }
+
 
 let idleInterval = setInterval(() => {
     if (idlePower > 0) {
