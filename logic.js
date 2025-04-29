@@ -13,6 +13,17 @@ let battlePoints = 0,
     ascensionCount = parseInt(localStorage.getItem("ascensionCount")) || 0,
     idleInterval;
 
+function startIdleInterval() {
+    clearInterval(idleInterval); // prevent duplicate intervals
+    idleInterval = setInterval(() => {
+        if (idlePower > 0) {
+            addBP(idlePower);
+            updateCounter();
+        }
+        idleTime = Math.floor((Date.now() - lastInteraction) / 1000);
+    }, 1000);
+}
+
 // Base upgrades costs, used for resetting/recalculating
 const baseCosts = {
     vitality: 100,
@@ -37,7 +48,7 @@ const upgrades = {
     bloodlust: { cost: 5000, active: false, level: 0 }
 };
 
-// Notification system queu
+// Notification system queue
 const messageQueue = [];
 let isShowingMessage = false;
 
@@ -115,6 +126,8 @@ function initializeUpgradeButtons() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", initializeUpgradeButtons);
+
 // Buying an upgrade
 function buyUpgrade(id, effect) {
     if (battlePoints >= upgrades[id].cost) {
@@ -159,13 +172,22 @@ document.getElementById("strength").addEventListener("click", () =>
 
 // Idle upgrades
 document.getElementById("summon").addEventListener("click", () =>
-    buyUpgrade("summon", updateIdlePower));
+    buyUpgrade("summon", () => {
+        updateIdlePower();
+        startIdleInterval();
+    }));
 
 document.getElementById("ritual").addEventListener("click", () =>
-    buyUpgrade("ritual", updateIdlePower));
+    buyUpgrade("ritual", () => {
+        updateIdlePower();
+        startIdleInterval();
+    }));
 
 document.getElementById("blade").addEventListener("click", () =>
-    buyUpgrade("blade", updateIdlePower));
+    buyUpgrade("blade", () => {
+        updateIdlePower();
+        startIdleInterval();
+    }));
 
 
 // Bloodlust mode
@@ -218,7 +240,6 @@ document.getElementById("ascendYes").addEventListener("click", () => {
 
     for (let key in upgrades) {
         upgrades[key].level = 0;
-
         if (key === "ascend") {
             upgrades[key].cost = Math.floor(baseCosts.ascend * Math.pow(2, ascensionCount));
         } else if (key === "bloodlust") {
@@ -226,7 +247,6 @@ document.getElementById("ascendYes").addEventListener("click", () => {
         } else {
             upgrades[key].cost = baseCosts[key];
         }
-
         if (upgrades[key].hasOwnProperty('active')) {
             upgrades[key].active = false;
         }
@@ -238,13 +258,10 @@ document.getElementById("ascendYes").addEventListener("click", () => {
     initializeUpgradeButtons();
     checkAchievements();
 
-    idleInterval = setInterval(() => {
-        if (idlePower > 0) {
-            addBP(idlePower);
-            updateCounter();
-        }
-        idleTime = Math.floor((Date.now() - lastInteraction) / 1000);
-    }, 1000);
+    document.addEventListener("DOMContentLoaded", () => {
+
+    });
+    startIdleInterval();
 });
 
 // Total idle power from idle upgrades
@@ -355,7 +372,6 @@ function loadGameState() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    initializeUpgradeButtons();
     document.getElementById("saveGameBtn").addEventListener("click", saveGameState);
     document.getElementById("loadGameBtn").addEventListener("click", loadGameState);
 });
